@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choose Your ChatBot</title>
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: system-ui, sans-serif;
+  background: radial-gradient(circle at top, #2a004f, #050010);
+  color: white;
+}
+
+/* MAIN CONTENT */
+#main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#choice-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.chat-option {
+  width: 90vw;
+  max-width: 320px;
+  height: 160px;
+  background: rgba(25,0,50,0.9);
+  border-radius: 22px;
+  box-shadow: 0 0 40px rgba(180,0,255,0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chat-option:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 60px rgba(220,0,255,0.8);
+}
+
+.chat-option:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 80px rgba(255,0,255,1);
+}
+
+.chat-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  text-shadow: 0 0 12px #ff00ff;
+}
+
+.chat-option span {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 1.6rem;
+  text-shadow: 0 0 10px #b100ff;
+}
+
+/* FOOTER */
+footer {
+  width: 100%;
+  text-align: center;
+  padding: 20px 10px;
+  font-size: 13px;
+  opacity: 0.85;
+  background: linear-gradient(
+    to top,
+    rgba(5,0,20,0.9),
+    rgba(5,0,20,0.4),
+    transparent
+  );
+}
+
+footer strong {
+  color: #ff6bff;
+  text-shadow: 0 0 6px rgba(255,0,255,0.8);
+}
+
+footer p {
+  margin: 0;
+  line-height: 1.6;
+}
+</style>
+</head>
+
+<body>
+
+<div id="main">
+  <h1>Choose Your ChatBot</h1>
+
+  <div id="choice-container">
+    <div class="chat-option" onclick="window.location.href='chatbot1.html'">
+      <div class="chat-icon">🤖</div>
+      <span>ChatBot Option 1</span>
+    </div>
+
+    <div class="chat-option" onclick="window.location.href='chatbot2.html'">
+      <div class="chat-icon">🧠</div>
+      <span>ChatBot Option 2</span>
+    </div>
+
+    <div class="chat-option" onclick="window.location.href='chatbot3.html'">
+      <div class="chat-icon">⚡</div>
+      <span>ChatBot Option 3</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>
+    Project hosted via <strong>GitHub Pages</strong><br>
+    Custom domain configured: <strong>xolani.store</strong><br>
+    Source code available on GitHub
+  </p>
+</footer>
+
+</body>
+</html>
