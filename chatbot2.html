@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<!-- REQUIRED FOR MOBILE (no design changes) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Demo ChatBot</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at top, #2a004f, #050010);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.chat-wrapper {
+  width: 390px;
+  height: 670px;
+  background: rgba(25,0,50,0.95);
+  border-radius: 30px;
+  box-shadow: 0 0 60px rgba(180,0,255,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  background: linear-gradient(90deg, #7d00ff, #b100ff);
+  padding: 14px;
+  text-align: center;
+  color: white;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.header span {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  justify-content: center;
+}
+
+.menu button {
+  background: #7d00ff;
+  border: none;
+  color: white;
+  padding: 7px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(180,0,255,0.4);
+}
+
+.submenu {
+  display: none;
+  flex-direction: column;
+  padding: 8px;
+}
+
+.submenu button {
+  margin: 4px 0;
+  background: #5a007f;
+  border: none;
+  color: white;
+  padding: 8px;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.msg {
+  max-width: 78%;
+  padding: 10px 14px;
+  margin: 8px 0;
+  border-radius: 18px;
+  font-size: 13px;
+}
+
+.user {
+  background: linear-gradient(135deg, #7d00ff, #b100ff);
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 6px;
+}
+
+.bot {
+  background: rgb(167, 21, 172);
+  color: hsl(285, 10%, 92%);
+  margin-right: auto;
+  border-bottom-left-radius: 6px;
+}
+
+.input-bar {
+  display: none;
+  background: rgba(0,0,0,0.3);
+  padding: 10px;
+}
+
+.input-bar input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 18px;
+  border: none;
+  outline: none;
+  background: #120020;
+  color: white;
+}
+
+.input-bar button {
+  margin-left: 8px;
+  padding: 10px 16px;
+  border-radius: 18px;
+  border: none;
+  background: #7d00ff;
+  color: #ebe9ea;
+  cursor: pointer;
+}
+
+#contact {
+  display: none;
+  margin: 10px;
+  padding: 10px;
+  background: #ff00ff;
+  color: rgb(248, 240, 248);
+  border-radius: 16px;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="chat-wrapper">
+
+  <div class="header">
+    <h1>Demo ChatBot</h1>
+    <span>Made by Xolani Mandla</span>
+  </div>
+
+  <div class="menu" id="mainMenu"></div>
+  <div class="submenu" id="subMenu"></div>
+
+  <div class="messages" id="messages">
+    <div class="msg bot">Hi 👋 Choose a topic to start.</div>
+  </div>
+
+  <div class="input-bar" id="inputBar">
+    <input id="input" placeholder="Type your question...">
+    <button onclick="send()">Send</button>
+  </div>
+
+  <div id="contact" onclick="window.open('https://vermillion-bienenstitch-3a7ed9.netlify.app/','_blank')">
+    I can’t answer this 😅 Click here to contact me
+  </div>
+
+</div>
+
+<script>
+let currentCategory = "";
+let currentSub = "";
+
+const KB = {
+  "Freelancing": {
+    "Getting Started":[{keywords:["start","begin","new"],answer:"Getting started with freelancing means identifying a skill and presenting it professionally online."}],
+    "Pricing":[{keywords:["price","pricing","charge"],answer:"Pricing depends on value, experience, and project complexity."}],
+    "Finding Clients":[{keywords:["clients","find"],answer:"Clients can be found through platforms, referrals, and online presence."}],
+    "Time Management":[{keywords:["time","schedule"],answer:"Time management requires planning, boundaries, and prioritization."}],
+    "Growth":[{keywords:["grow","scale"],answer:"Growth comes from specialization and strong client relationships."}]
+  },
+
+  "Web Development": {
+    "HTML & CSS":[{keywords:["html","css"],answer:"HTML structures content while CSS controls design and layout."}],
+    "JavaScript":[{keywords:["javascript","js"],answer:"JavaScript adds interactivity and logic to websites."}],
+    "Building Websites":[{keywords:["build","create"],answer:"Building websites involves planning, structure, styling, and testing."}],
+    "Maintenance":[{keywords:["maintain","update"],answer:"Maintenance ensures security, performance, and accuracy."}],
+    "Learning Path":[{keywords:["learn","study"],answer:"Learning works best through projects and consistent practice."}]
+  },
+  
+  
+  "Design Services": {
+    "Graphic Design":[
+      {keywords:["graphic","design"], answer:"Graphic design communicates ideas visually using layout, color, and typography."}
+    ],
+    "UI/UX":[
+      {keywords:["ui","ux","user"], answer:"UI/UX focuses on making digital products intuitive, usable, and enjoyable."}
+    ],
+    "Brand Identity":[
+      {keywords:["brand","identity"], answer:"Brand identity defines how a business looks, feels, and is remembered."}
+    ],
+    "Tools":[
+      {keywords:["tools","software"], answer:"Design tools help create, prototype, and collaborate efficiently."}
+    ],
+    "Client Expectations":[
+      {keywords:["client","expect"], answer:"Clear communication helps meet and exceed client expectations."}
+    ]
+  },
+
+  "Fiverr & Platforms": {
+    "Creating Gigs":[
+      {keywords:["gig","create"], answer:"Strong gigs clearly explain services, benefits, and outcomes."}
+    ],
+    "Getting Orders":[
+      {keywords:["orders","clients"], answer:"Orders grow with optimized listings and fast responses."}
+    ],
+    "Reviews":[
+      {keywords:["reviews","rating"], answer:"Positive reviews build trust and improve visibility."}
+    ],
+    "Competition":[
+      {keywords:["competition","compete"], answer:"Standing out requires niche focus and clear value."}
+    ],
+    "Platform Rules":[
+      {keywords:["rules","policy"], answer:"Understanding platform rules prevents account issues."}
+    ]
+  },
+
+  "Remote Work": {
+    "Work From Home":[
+      {keywords:["remote","home"], answer:"Remote work offers flexibility but requires discipline."}
+    ],
+    "Tools":[
+      {keywords:["tools","apps"], answer:"Remote tools support communication and collaboration."}
+    ],
+    "Productivity":[
+      {keywords:["focus","productive"], answer:"Productivity improves with routines and time blocks."}
+    ],
+    "Communication":[
+      {keywords:["communicate","talk"], answer:"Clear communication is key for remote teams."}
+    ],
+    "Opportunities":[
+      {keywords:["jobs","opportunity"], answer:"Remote jobs exist across many industries."}
+    ]
+  },
+
+  "Automation & AI": {
+    "What is Automation":[
+      {keywords:["automation"], answer:"Automation handles repetitive tasks efficiently."}
+    ],
+    "AI in Business":[
+      {keywords:["ai","business"], answer:"AI improves efficiency and decision-making."}
+    ],
+    "Chatbots":[
+      {keywords:["chatbot","bot"], answer:"Chatbots automate customer interaction and support."}
+    ],
+    "Benefits":[
+      {keywords:["benefits","advantages"], answer:"Automation saves time and reduces errors."}
+    ],
+    "Limitations":[
+      {keywords:["limits","problems"], answer:"Automation still requires human oversight."}
+    ]
+  },
+
+  "E-commerce": {
+    "Online Stores":[
+      {keywords:["store","shop"], answer:"E-commerce allows selling products online."}
+    ],
+    "Payments":[
+      {keywords:["payment","pay"], answer:"Secure payments build customer trust."}
+    ],
+    "Products":[
+      {keywords:["product","items"], answer:"Successful products solve real problems."}
+    ],
+    "Marketing":[
+      {keywords:["marketing","ads"], answer:"Marketing drives traffic and sales."}
+    ],
+    "Customer Experience":[
+      {keywords:["customer","experience"], answer:"Good experience builds loyalty and repeat sales."}
+    ]
+  },
+
+  "Branding & Online Presence": {
+    "Online Identity":[
+      {keywords:["online","identity"], answer:"Online presence builds credibility and trust."}
+    ],
+    "Social Media":[
+      {keywords:["social","media"], answer:"Social platforms increase engagement and reach."}
+    ],
+    "Web Presence":[
+      {keywords:["website","web"], answer:"Websites act as a digital headquarters."}
+    ],
+    "Consistency":[
+      {keywords:["consistent","consistency"], answer:"Consistency strengthens brand recognition."}
+    ],
+    "Reputation":[
+      {keywords:["reputation","trust"], answer:"Reputation strongly influences customer decisions."}
+    ]
+  },
+
+  "Client Support": {
+    "Customer Help":[
+      {keywords:["support","help"], answer:"Good support ensures customer satisfaction."}
+    ],
+    "Feedback":[
+      {keywords:["feedback","review"], answer:"Feedback helps improve services."}
+    ],
+    "Problem Solving":[
+      {keywords:["problem","issue"], answer:"Solving problems builds long-term trust."}
+    ],
+    "Response Time":[
+      {keywords:["response","fast"], answer:"Quick responses improve customer experience."}
+    ],
+    "Satisfaction":[
+      {keywords:["happy","satisfied"], answer:"Satisfied clients are more likely to return."}
+    ]
+  },
+
+  "Background": {
+    "Charlotte Mandla":[
+      {keywords:["charlotte","mandla"], answer:"Charlotte Mandla is a Cape Town–based freelancer expanding into tech."}
+    ],
+    "Business Vision":[
+      {keywords:["vision","goal"], answer:"The vision focuses on scalable digital solutions."}
+    ],
+    "Demo Purpose":[
+      {keywords:["demo","purpose"], answer:"This chatbot demonstrates structured automation."}
+    ],
+    "Services":[
+      {keywords:["services","offer"], answer:"Services include web development, automation, and strategy."}
+    ],
+    "Future Plans":[
+      {keywords:["future","plans"], answer:"Future plans focus on AI-driven solutions."}
+    ]
+  }
+};
+
+/* Build menu */
+const mainMenu = document.getElementById("mainMenu");
+Object.keys(KB).forEach(cat=>{
+  const b=document.createElement("button");
+  b.textContent=cat;
+  b.onclick=()=>showSubs(cat);
+  mainMenu.appendChild(b);
+});
+
+function showSubs(cat){
+  currentCategory=cat;
+  currentSub="";
+  subMenu.innerHTML="";
+  messages.innerHTML="";
+  inputBar.style.display="none";
+  contact.style.display="none";
+
+  Object.keys(KB[cat]).forEach(sub=>{
+    const b=document.createElement("button");
+    b.textContent=sub;
+    b.onclick=()=>selectSub(sub);
+    subMenu.appendChild(b);
+  });
+  subMenu.style.display="flex";
+}
+
+function selectSub(sub){
+  currentSub=sub;
+  messages.innerHTML="";
+  inputBar.style.display="flex";
+}
+
+function addMsg(t,c){
+  const d=document.createElement("div");
+  d.className="msg "+c;
+  d.innerText=t;
+  messages.appendChild(d);
+  messages.scrollTop=messages.scrollHeight;
+}
+
+function send(){
+  const t=input.value.trim();
+  if(!t) return;
+  addMsg(t,"user");
+  input.value="";
+
+  let found=false;
+  for(const a of KB[currentCategory][currentSub]){
+    if(a.keywords.some(k=>t.toLowerCase().includes(k))){
+      addMsg(a.answer,"bot");
+      found=true;
+      break;
+    }
+  }
+  if(!found){
+    addMsg("Error connecting to server.","bot");
+    contact.style.display="block";
+  }
+}
+</script>
+
+</body>
+</html>

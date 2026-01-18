@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Demo Bot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:radial-gradient(circle at top,#2a004f,#050010);
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.container{
+  width:100%;
+  max-width:900px;
+  height:95vh;
+  background:rgba(25,0,50,0.95);
+  border-radius:15px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.header{
+  text-align:center;
+  padding:12px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.tabs{
+  display:flex;
+}
+
+.tabs button{
+  flex:1;
+  padding:12px;
+  border:none;
+  background:#7d00ff;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.tabs button:hover{
+  background:#8a00ff;
+}
+
+.tabs button.active{
+  background:#5200aa;
+}
+
+.section{
+  display:none;
+  flex:1;
+  overflow-y:auto;
+  padding:12px;
+}
+
+.section.active{display:flex; flex-direction:column;}
+
+.menu button{
+  width:100%;
+  padding:10px;
+  margin-bottom:6px;
+  border:none;
+  border-radius:8px;
+  background:#5a007f;
+  color:white;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.menu button:hover{
+  background:#7a00ff;
+}
+
+/* Chatbot Styles */
+.messages-container{
+  flex:1;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column-reverse; /* Messages appear from bottom */
+  padding:8px;
+  gap:6px;
+}
+
+.messages{margin-bottom:10px;}
+.user, .bot{
+  max-width:75%;
+  padding:10px;
+  border-radius:10px;
+  animation:fadeIn 0.4s;
+}
+
+.user{
+  align-self:flex-end;
+  background:linear-gradient(135deg,#7d00ff,#5200aa);
+}
+
+.bot{
+  align-self:flex-start;
+  background:linear-gradient(135deg,#e3c8ff,#b08cff);
+  color:#000;
+}
+
+.input-area{
+  display:flex;
+  gap:6px;
+}
+
+.input-area input{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#120020;
+  color:white;
+}
+
+.input-area button{
+  padding:10px;
+  background:#7d00ff;
+  border:none;
+  border-radius:8px;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.input-area button:hover{
+  background:#8a00ff;
+}
+
+/* YouTube Links */
+.answer-box a{
+  display:block;
+  padding:10px;
+  margin-bottom:6px;
+  border-radius:6px;
+  background:#120020;
+  color:#a8d1ff;
+  text-decoration:none;
+  transition:0.2s;
+}
+
+.answer-box a:hover{
+  background:#1a1a40;
+  color:#fff;
+}
+
+/* Contact Form */
+form input, form textarea, form button{
+  width:100%;
+  padding:10px;
+  margin-bottom:8px;
+  border:none;
+  border-radius:6px;
+}
+
+form button{
+  background:#7d00ff;
+  color:white;
+  font-weight:bold;
+}
+
+/* Animations */
+@keyframes fadeIn{
+  0%{opacity:0; transform:translateY(10px);}
+  100%{opacity:1; transform:translateY(0);}
+}
+
+@keyframes fadeOut{
+  0%{opacity:1; transform:translateY(0);}
+  100%{opacity:0; transform:translateY(-20px);}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+<h2>Smart Bot</h2>
+<p><small>Made by Xolani Mandla</small></p>
+</div>
+
+<div class="tabs">
+<button class="active" onclick="openTab(0)">Explore</button>
+<button onclick="openTab(1)">Chatbot</button>
+<button onclick="openTab(2)">YouTube Links</button>
+<button onclick="openTab(3)">Contact</button>
+</div>
+
+<!-- SIDE 1: EXPLORE -->
+<div class="section active" id="explore">
+<div class="menu" id="exploreMenu"></div>
+<div class="answer-box" id="exploreAnswer"></div>
+</div>
+
+<!-- SIDE 2: CHATBOT -->
+<div class="section" id="chat">
+  <div class="messages-container" id="messages"></div>
+  <div class="menu" id="chatTopics"></div>
+  <div class="input-area">
+    <input id="userInput" placeholder="Ask me anything...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<!-- SIDE 3: YOUTUBE LINKS -->
+<div class="section" id="youtube">
+  <div class="menu" id="youtubeMenu"></div>
+  <div class="answer-box" id="youtubeAnswer"></div>
+</div>
+
+<!-- SIDE 4: CONTACT -->
+<div class="section" id="contact">
+<h3>Contact Me</h3>
+<form action="https://formspree.io/f/mdaolkgr" method="POST">
+  <input type="text" name="name" placeholder="Your Name" required>
+  <input type="email" name="email" placeholder="Your Email" required>
+  <textarea name="message" rows="5" placeholder="Your Message / Order Details" required></textarea>
+  <button type="submit">Send Message</button>
+</form>
+</div>
+
+</div>
+
+<script>
+// Tab Function
+function openTab(i){
+ document.querySelectorAll(".tabs button").forEach((b,n)=>b.classList.toggle("active",n===i));
+ document.querySelectorAll(".section").forEach((s,n)=>s.classList.toggle("active",n===i));
+}
+
+/* SIDE 1: EXPLORE DATA */
+const exploreData = {
+  "Freelancing": {
+    "Getting Started":"Freelancing starts by choosing one skill and offering it professionally online. You grow by improving results and client communication.",
+    "Pricing":"Pricing depends on time, value, and skill level. Fair prices attract serious clients.",
+    "Clients":"Clients come from platforms, referrals, and online presence. Consistency builds trust.",
+    "Portfolio":"A strong portfolio shows your skills and previous work. It builds client confidence.",
+    "Platforms":"Popular platforms: Fiverr, Upwork, Freelancer, and LinkedIn."
+  },
+  "Web Development": {
+    "HTML & CSS":"HTML structures websites while CSS controls appearance. Together they form the foundation of the web.",
+    "JavaScript":"JavaScript makes websites interactive and dynamic. It allows logic and user interaction.",
+    "Mobile Design":"Responsive design ensures websites work on phones and tablets. It improves usability and reach.",
+    "Frameworks":"Frameworks like React, Vue, and Angular help build dynamic websites faster.",
+    "Backend Basics":"Backend development uses Node.js, Python, or PHP to manage databases, servers, and logic."
+  },
+  "Automation & AI": {
+    "Chatbots":"Chatbots answer common questions automatically. They save time and improve support.",
+    "Automation":"Automation handles repetitive tasks efficiently. It increases productivity.",
+    "AI Tools":"AI tools like ChatGPT, Midjourney, and Zapier automate writing, design, and workflow.",
+    "Data Analysis":"AI can analyze large datasets quickly to identify trends and insights."
+  },
+  "Digital Marketing": {
+    "SEO":"Search Engine Optimization improves website visibility on search engines.",
+    "Social Media":"Use social media platforms to build a personal brand or business.",
+    "Email Marketing":"Email campaigns maintain client communication and promote offers.",
+    "Content Marketing":"Create valuable content that attracts and retains an audience."
+  },
+  "Finance & Business": {
+    "Budgeting":"Track income and expenses to manage money efficiently.",
+    "Investing":"Invest in stocks, crypto, or business to grow wealth over time.",
+    "Taxes":"Understand local tax rules to stay compliant and avoid penalties.",
+    "Entrepreneurship":"Start your own business by identifying opportunities and solving problems."
+  }
+};
+const menu=document.getElementById("exploreMenu");
+for(let cat in exploreData){
+ let b=document.createElement("button");
+ b.textContent=cat;
+ b.onclick=()=>showExplore(cat);
+ menu.appendChild(b);
+}
+function showExplore(cat){
+ const box=document.getElementById("exploreAnswer");
+ box.innerHTML="";
+ for(let sub in exploreData[cat]){
+  let btn=document.createElement("button");
+  btn.textContent=sub;
+  btn.onclick=()=>box.innerHTML=`<p>${exploreData[cat][sub]}</p>`;
+  box.appendChild(btn);
+ }
+}
+
+/* SIDE 2: CHATBOT DATA */
+const chatKB = [
+  {keys:["start freelancing","begin freelancing","how to freelance"], answer:"Freelancing starts by choosing a skill and offering it online. Deliver value and build trust."},
+  {keys:["pricing","how much charge","cost"], answer:"Pricing depends on skill level and value. Charging fairly attracts better clients."},
+  {keys:["clients","finding clients","get clients"], answer:"Clients come from platforms, referrals, and networking. Quality work brings repeat clients."},
+  {keys:["portfolio","show work"], answer:"A strong portfolio displays your previous work and skills to attract clients."},
+  {keys:["web development","build website","create website"], answer:"Web development includes creating websites with structure, design, and interactivity."},
+  {keys:["html","css","javascript"], answer:"HTML structures pages, CSS styles them, and JavaScript adds interactivity."},
+  {keys:["frameworks","react","vue","angular"], answer:"Frameworks like React, Vue, Angular simplify dynamic website development."},
+  {keys:["backend","node.js","python","php"], answer:"Backend development manages servers, databases, and logic."},
+  {keys:["chatbot","automation"], answer:"Chatbots automate FAQs and support tasks. Automation reduces workload."},
+  {keys:["ai tools","ai"], answer:"AI tools help with writing, analysis, and automating tasks."},
+  {keys:["seo","search engine optimization"], answer:"SEO improves website visibility in search engines."},
+  {keys:["social media"], answer:"Social media helps grow your personal brand or business."},
+  {keys:["email marketing"], answer:"Email marketing maintains communication and promotes offers."},
+  {keys:["budgeting"], answer:"Track income and expenses to manage money efficiently."},
+  {keys:["investing"], answer:"Invest in stocks, crypto, or businesses to grow wealth."},
+  {keys:["entrepreneurship","start business"], answer:"Identify problems and start a business to solve them."}
+];
+
+/* Suggested Chatbot Topics */
+const topics = ["Freelancing", "Web Development", "Automation & AI", "Digital Marketing", "Finance & Business"];
+const topicMenu = document.getElementById("chatTopics");
+topics.forEach(t => {
+  let btn = document.createElement("button");
+  btn.textContent = t;
+  btn.onclick = () => addMsg(`You selected topic: ${t}. Ask me a question about it!`, "bot");
+  topicMenu.appendChild(btn);
+});
+
+/* CHATBOT FUNCTIONS */
+function sendMessage(){
+  const input = document.getElementById("userInput");
+  const text = input.value.trim().toLowerCase();
+  if(!text) return;
+  addMsg(input.value, "user");
+  input.value = "";
+  let found = false;
+  chatKB.forEach(q=>{
+    if(q.keys.some(k=>text.includes(k))){
+      addMsg(q.answer, "bot");
+      found = true;
+    }
+  });
+  if(!found){
+    addMsg("I may not fully understand. Try keywords like 'pricing', 'portfolio', or 'SEO'. Or use the contact form.", "bot");
+  }
+}
+function addMsg(text, sender){
+  const div = document.createElement("div");
+  div.className = sender;
+  div.innerText = text;
+  document.getElementById("messages").prepend(div);
+  setTimeout(()=>{
+    div.style.animation = "fadeOut 1s forwards";
+    setTimeout(()=>div.remove(),10000);
+  },8000);
+}
+
+/* SIDE 3: YOUTUBE LINKS DATA */
+const youtubeData = {
+  "Freelancing": [
+    {title:"The 3 Biggest Secrets of Freelance Success", link:"https://www.youtube.com/watch?v=freHZqDn5Sg"},
+    {title:"Ultimate Freelancing Beginner's Guide", link:"https://www.youtube.com/watch?v=Oos9UXRvr28"}
+  ],
+  "Web Development": [
+    {title:"How to Build & Sell Web Apps With AI", link:"https://www.youtube.com/watch?v=r_GmssmQIXo"}
+  ],
+  "Automation & AI": [
+    {title:"Build Your First AI Business in 6 Hours", link:"https://www.youtube.com/watch?v=r0c7RhMFcww"},
+    {title:"How to Build & Sell AI Automations", link:"https://www.youtube.com/watch?v=5TxSqvPbnWw"}
+  ],
+  "Digital Marketing": [
+    {title:"The Easiest Social Media Side Hustle for Beginners", link:"https://www.youtube.com/watch?v=zgEeyTbQjdQ"}
+  ],
+  "Finance & Business": [
+    {title:"Top 5 Ways Freelancers Land Clients", link:"https://www.youtube.com/watch?v=CYW3TkuB7Y0"}
+  ],
+ "Charlotte Fiverr Gigs": [
+    { title:  " Charlotte Fiverr Gig", link: "http://www.fiverr.com/s/ak2elK7" }
+]
+
+};
+
+/* Populate YouTube Menu */
+const youtubeMenu = document.getElementById("youtubeMenu");
+for(let category in youtubeData){
+  let btn = document.createElement("button");
+  btn.textContent = category;
+  btn.onclick = ()=>showYoutubeLinks(category);
+  youtubeMenu.appendChild(btn);
+}
+
+function showYoutubeLinks(category){
+  const box = document.getElementById("youtubeAnswer");
+  box.innerHTML = "";
+  youtubeData[category].forEach(video=>{
+    let a = document.createElement("a");
+    a.href = video.link;
+    a.target = "_blank";
+    a.textContent = video.title;
+    box.appendChild(a);
+  });
+}
+</script>
+
+</body>
+</html>

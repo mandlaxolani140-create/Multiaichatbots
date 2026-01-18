@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEMO Bot</title>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #2a004f, #050010);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: white;
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 430px;
+  height: 100vh;
+  background: rgba(25,0,50,0.95);
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.header span {
+  font-style: italic;
+  font-size: 13px;
+  color: #cfaaff;
+}
+
+.button-menu {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.button-menu button {
+  padding: 12px;
+  background: #7d00ff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.subheading-container {
+  display: none;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.subheading-container button {
+  padding: 12px;
+  background: #5a007f;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.user {
+  text-align: right;
+  margin: 8px 0;
+}
+
+.bot {
+  text-align: left;
+  margin: 8px 0;
+  color: #e3c8ff;
+}
+
+.input-area {
+  display: none;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  outline: none;
+  background: #120020;
+  color: white;
+  font-size: 14px;
+}
+
+.send-btn {
+  background: #7d00ff;
+  border: none;
+  padding: 12px;
+  color: white;
+  cursor: pointer;
+}
+
+#contact-link {
+  display: none;
+  text-align: center;
+  margin: 10px;
+  padding: 10px;
+  background: #ff00ff;
+  color: white;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 20px;
+  }
+
+  .messages {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .user, .bot {
+    font-size: 14px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="chat-container">
+  <div class="header">
+    <h1>DEMO Bot</h1>
+    <span>Made by Xolani mandla</span>
+  </div>
+
+  <div class="button-menu" id="main-buttons">
+    <button onclick="showSub('Freelancing')">Freelancing</button>
+    <button onclick="showSub('Web Development')">Web Dev</button>
+    <button onclick="showSub('Design Services')">Design</button>
+    <button onclick="showSub('Fiverr & Platforms')">Fiverr</button>
+    <button onclick="showSub('Remote Work')">Remote</button>
+    <button onclick="showSub('Automation & AI')">Automation/AI</button>
+    <button onclick="showSub('E-commerce')">E-commerce</button>
+    <button onclick="showSub('Branding & Online Presence')">Branding</button>
+    <button onclick="showSub('Client Support')">Client Support</button>
+    <button onclick="showSub('Background')">Background</button>
+  </div>
+
+  <div class="subheading-container" id="subs"></div>
+
+  <div class="messages" id="messages"></div>
+
+  <div class="input-area" id="input-area">
+    <input id="userInput" placeholder="Type your question...">
+    <button class="send-btn" onclick="sendMessage()">Send</button>
+  </div>
+
+  <div id="contact-link" onclick="window.open('https://vermillion-bienenstitch-3a7ed9.netlify.app/', '_blank')">
+    I cannot answer this 😅 Click here to message me directly
+  </div>
+</div>
+
+<script>
+let currentCategory = "";
+let currentSub = "";
+
+function showSub(category){
+  currentCategory = category;
+  const subs = document.getElementById('subs');
+  subs.innerHTML = '';
+  if(KB[category]){
+    Object.keys(KB[category]).forEach(sub => {
+      const btn = document.createElement('button');
+      btn.textContent = sub;
+      btn.onclick = () => selectSub(sub);
+      subs.appendChild(btn);
+    });
+    subs.style.display = 'flex';
+  }
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('input-area').style.display='none';
+  document.getElementById('contact-link').style.display='none';
+}
+
+function selectSub(sub){
+  currentSub = sub;
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('input-area').style.display='flex';
+  document.getElementById('contact-link').style.display='none';
+}
+
+function addMsg(text, cls){
+  const div = document.createElement('div');
+  div.className = cls;
+  div.innerText = text;
+  document.getElementById('messages').appendChild(div);
+  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+function sendMessage(){
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if(!text) return;
+  addMsg(text, 'user');
+  input.value = '';
+  const answers = KB[currentCategory][currentSub] || [];
+  let found=false;
+  for(let a of answers){
+    if(a.keywords.some(k => text.toLowerCase().includes(k.toLowerCase()))){
+      addMsg(a.answer, 'bot');
+      found=true;
+      break;
+    }
+  }
+  if(!found){
+    addMsg("I’m sorry, I don’t have an answer for that at the moment.", 'bot');
+    document.getElementById('contact-link').style.display='block';
+  }
+}
+
+// Include KB inline here for offline usage
+const KB = {
+  "Freelancing": {
+    "Getting Started": [
+      {keywords:["start","begin","new","freelance"], answer:"Getting started with freelancing means identifying a skill you can offer and presenting it professionally online."},
+      {keywords:["no experience","beginner"], answer:"Even without experience, freelancing is possible by starting small, practicing your skill, and building sample work."}
+    ],
+    "Pricing":[
+      {keywords:["price","pricing","charge"], answer:"Freelance pricing depends on skill level, project complexity, and value delivered."},
+      {keywords:["cheap","expensive"], answer:"Focus on value rather than competition. Clients pay more for clarity, reliability, and results."}
+    ],
+    "Finding Clients":[
+      {keywords:["clients","customers","find"], answer:"Clients are commonly found through platforms, referrals, and online presence."},
+      {keywords:["no clients","not getting clients"], answer:"Not getting clients is common early on. Improving profiles, refining offers, and staying active usually leads to better visibility."}
+    ],
+    "Time Management":[
+      {keywords:["time","schedule","manage"], answer:"Time management requires planning, boundaries, and prioritizing high-impact work."}
+    ],
+    "Growth":[
+      {keywords:["grow","scale","expand"], answer:"Freelance growth comes from specialization, strong client relationships, and improving efficiency."}
+    ]
+  },
+
+  "Web Development": {
+    "HTML & CSS":[{keywords:["html","css"], answer:"HTML provides structure for websites while CSS controls layout and visual design."}],
+    "JavaScript":[{keywords:["javascript","js"], answer:"JavaScript allows websites to respond to user actions and display dynamic content."}],
+    "Building Websites":[{keywords:["build","create website"], answer:"Building a website involves planning content, structuring pages, styling elements, and testing functionality."}],
+    "Maintenance":[{keywords:["update","maintain"], answer:"Website maintenance ensures security, performance, and accuracy."}],
+    "Learning Path":[{keywords:["learn","study"], answer:"Learning web development works best through small projects, practice, and consistent experimentation."}]
+  },
+
+  // Include all other categories in similar structure
+  "Design Services": { "Graphic Design":[{keywords:["graphic","design"], answer:"Graphic design focuses on visual communication using layout, color, and typography to convey ideas."}], "UI/UX":[{keywords:["ui","ux"], answer:"UI/UX ensures digital products are easy to use and visually pleasing."}], "Brand Identity":[{keywords:["brand","identity"], answer:"Brand identity represents how a business looks and feels across platforms."}], "Tools":[{keywords:["tools","software"], answer:"Design tools help streamline creativity and collaboration."}], "Client Expectations":[{keywords:["client","expectations"], answer:"Clear communication helps align design outcomes with client expectations."}]},
+  "Fiverr & Platforms": { "Creating Gigs":[{keywords:["gig","create"], answer:"A strong gig clearly explains what you offer, who it is for, and what results clients can expect."}], "Getting Orders":[{keywords:["orders"], answer:"Orders increase with optimized gigs, strong visuals, and responsiveness."}], "Reviews":[{keywords:["reviews","ratings"], answer:"Reviews build trust and credibility."}], "Competition":[{keywords:["competition"], answer:"Standing out requires clarity, niche focus, and consistent value delivery."}], "Platform Rules":[{keywords:["rules","policies"], answer:"Understanding platform rules helps avoid issues and ensures account stability."}]},
+  "Remote Work": { "Work From Home":[{keywords:["remote","home"], answer:"Remote work offers flexibility but requires discipline, structure, and reliable communication."}], "Tools":[{keywords:["tools"], answer:"Remote tools help teams collaborate, track tasks, and communicate efficiently."}], "Productivity":[{keywords:["productive","focus"], answer:"Productivity improves with routines, time blocks, and minimizing distractions."}], "Communication":[{keywords:["communicate"], answer:"Clear communication is essential in remote work."}], "Opportunities":[{keywords:["jobs","remote"], answer:"Remote opportunities exist across industries and reward self-motivated individuals."}]},
+  "Automation & AI": { "What is Automation":[{keywords:["automation"], answer:"Automation uses technology to handle repetitive tasks, saving time and reducing errors."}], "AI in Business":[{keywords:["ai"], answer:"AI helps businesses analyze data, improve efficiency, and enhance customer experience."}], "Chatbots":[{keywords:["chatbot"], answer:"Chatbots provide instant responses and reduce workload by handling common questions."}], "Benefits":[{keywords:["benefits"], answer:"Automation improves consistency, scalability, and operational efficiency."}], "Limitations":[{keywords:["limits"], answer:"Automation works best with clear rules but requires human oversight."}]},
+  "E-commerce": { "Online Stores":[{keywords:["online store"], answer:"E-commerce allows businesses to sell products and services online efficiently."}], "Payments":[{keywords:["payment"], answer:"Secure payment systems build trust and reduce abandoned carts."}], "Products":[{keywords:["products"], answer:"Successful products solve real problems and are clearly presented."}], "Marketing":[{keywords:["marketing"], answer:"Marketing drives traffic and awareness through consistent messaging."}], "Customer Experience":[{keywords:["customer"], answer:"Good customer experience increases retention and brand loyalty."}]},
+  "Branding & Online Presence": { "Online Identity":[{keywords:["online presence"], answer:"An online presence builds credibility and visibility for businesses."}], "Social Media":[{keywords:["social media"], answer:"Social platforms help businesses engage audiences and build relationships."}], "Web Presence":[{keywords:["website"], answer:"A website acts as a central hub for information and credibility."}], "Consistency":[{keywords:["consistent"], answer:"Consistent branding improves recognition and trust."}], "Reputation":[{keywords:["reputation"], answer:"Online reputation affects trust and purchasing decisions."}]},
+  "Client Support": { "Customer Help":[{keywords:["support","help"], answer:"Client support ensures users feel heard and assisted."}], "Feedback":[{keywords:["feedback"], answer:"Feedback helps improve services and user satisfaction."}], "Problem Solving":[{keywords:["problem","issue"], answer:"Effective problem-solving builds long-term client trust."}], "Response Time":[{keywords:["response","fast"], answer:"Quick responses improve user confidence and experience."}], "Satisfaction":[{keywords:["happy","satisfied"], answer:"Satisfied clients are more likely to return and recommend services."}]},
+  "Background": { "Charlotte Mandla":[{keywords:["charlotte","mandla","who"], answer:"Charlotte Mandla is a Cape Town based freelancer expanding into tech and web solutions."}], "Business Vision":[{keywords:["vision","goal"], answer:"The vision is to build scalable digital solutions that simplify business operations."}], "Demo Purpose":[{keywords:["demo","purpose"], answer:"This chatbot demonstrates how structured automation can support businesses effectively."}], "Services":[{keywords:["services","offer"], answer:"Services include web development, automation, and digital strategy support."}], "Future Plans":[{keywords:["future","plans"], answer:"Future plans focus on expanding into advanced AI-driven solutions."}]}
+};
+</script>
+</body>
+</html>
